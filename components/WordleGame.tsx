@@ -34,7 +34,7 @@ export default function WordleGame() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if(dictionaryMap.get(currentGuess) === undefined){
+    if(dictionaryMap.get(currentGuess.toLowerCase()) === undefined){
       // set error in the input field
       setInputError(true);
       return;
@@ -44,12 +44,12 @@ export default function WordleGame() {
     }
     console.log(word);
     if (currentGuess.length === 5) {
-      const result = checkGuess(word, currentGuess);
+      const result = checkGuess(word, currentGuess.toLowerCase());
       
       const newGuesses = [...guesses];
       for(let i = 0; i<guesses.length; i++){
         if(guesses[i].guess === '     '){
-          newGuesses[i] = { guess: currentGuess, result };
+          newGuesses[i] = { guess: currentGuess.toLowerCase(), result };
           break;
         }
       }
@@ -114,7 +114,9 @@ export default function WordleGame() {
           onChange={(e) => setCurrentGuess(e.target.value)}
           disabled={gameOver}
         />
-          <button className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+          <button className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit"
+          disabled={gameOver}
+          >
             Submit
           </button>
         </form>
