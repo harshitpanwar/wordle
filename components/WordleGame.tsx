@@ -114,11 +114,11 @@ export default function WordleGame() {
           onChange={(e) => setCurrentGuess(e.target.value)}
           disabled={gameOver}
         />
-          {inputError && <p className='text-red-500' >{ERROR_MESSAGE}</p>}
           <button className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
             Submit
           </button>
         </form>
+        {inputError && <p className='text-red-500' >{ERROR_MESSAGE}</p>}
         {showPopup && <Popup message="Congratulations! You've won!" onClose={closePopup} />}
         {errorPopup && <Popup message="You've lost!" onClose={closePopup} />}
         <style jsx>{`
