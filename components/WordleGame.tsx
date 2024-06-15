@@ -89,7 +89,9 @@ export default function WordleGame() {
 
   return (
     <div className='flex flex-col items-center'>
-      <h1 className=''>Wordle</h1>
+      <h1 className="text-4xl font-bold text-center text-gray-900 font-roboto mt-5">
+          Wordle
+      </h1>
       <div className='flex flex-col items-center justify-center min-h-screen text-center'>
         <div>
           {guesses.map((guessObj, index) => (
