@@ -1,6 +1,6 @@
-// utils/wordle.ts
+import { dictionary } from "./dictionary";
 
-const WORDS: string[] = ["apple", "grape", "lemon", "melon", "berry"];
+export const WORDS: string[] = dictionary;
 
 export function getRandomWord(): string {
   return WORDS[Math.floor(Math.random() * WORDS.length)];

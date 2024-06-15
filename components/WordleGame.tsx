@@ -4,6 +4,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { getRandomWord, checkGuess, CheckResult } from '../utils/wordle';
 import Popup from './Popup';
+import { WORDS } from '../utils/wordle';
 
 interface Guess {
   guess: string;
@@ -11,6 +12,11 @@ interface Guess {
 }
 
 const initialGuesses: Guess[] = Array(6).fill({ guess: '     ', result: Array(5).fill('white') });
+const ERROR_MESSAGE = 'Please enter a valid 5-letter word from the dictionary';
+const dictionaryMap = new Map<string, boolean>();
+for (const word of WORDS) {
+  dictionaryMap.set(word, true);
+}
 
 export default function WordleGame() {
   const [word, setWord] = useState<string>('');
@@ -18,31 +24,29 @@ export default function WordleGame() {
   const [currentGuess, setCurrentGuess] = useState<string>('');
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [errorPopup, setErrorPopup] = useState<boolean>(false);
+  const [inputError, setInputError] = useState<boolean>(false);
 
   useEffect(() => {
     setWord(getRandomWord());
   }, []);
 
-  useEffect(()=> {
-
-    if(gameOver){
-
-      for(let i = 0; i<guesses.length; i++){
-        if(guesses[i].result.every((r) => r === 'green')){
-          setShowPopup(true);
-          return;
-        }
-      }
-    }
-
-  }, [gameOver])
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if(dictionaryMap.get(currentGuess) === undefined){
+      // set error in the input field
+      setInputError(true);
+      return;
+    }
+    else{
+      setInputError(false);
+    }
+    console.log(word);
     if (currentGuess.length === 5) {
       const result = checkGuess(word, currentGuess);
       
-      const newGuesses = guesses;
+      const newGuesses = [...guesses];
       for(let i = 0; i<guesses.length; i++){
         if(guesses[i].guess === '     '){
           newGuesses[i] = { guess: currentGuess, result };
@@ -54,89 +58,116 @@ export default function WordleGame() {
       setCurrentGuess('');
       if (result.every((r) => r === 'green')) {
         setGameOver(true);
+        setTimeout(() => {
+          setShowPopup(true);
+          resetBoard();  
+        }, 1000);
+        return;
       }
       if(newGuesses[5].guess !== '     '){
         setGameOver(true);
+        setTimeout(() => {
+          setErrorPopup(true);
+          resetBoard();  
+        }, 1000);
+        return;
       }
     }
   };
 
   const closePopup = async() => {
-    // Optionally, reset the game here
-    console.log('closePopup')
+    setShowPopup(false);
+    setErrorPopup(false);
+  };
+  const resetBoard = () => {
     setWord(getRandomWord());
     setGuesses(initialGuesses);
     setCurrentGuess('');
     setGameOver(false);
-    setShowPopup(false);
-    console.log('closePopupasfasd')
-
   };
 
+
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen text-center'>
-      <h1>Wordle Clone</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          maxLength={5}
-          value={currentGuess}
-          onChange={(e) => setCurrentGuess(e.target.value)}
-          disabled={gameOver}
-        />
-        <button type="submit">Submit</button>
-      </form>
-      <div>
-        {guesses.map((guessObj, index) => (
-          <div key={index} className="guess">
-            {guessObj.guess.split('').map((letter, i) => (
-              <span key={i} className={`letter ${guessObj.result[i]}`}>
-                {letter}
-              </span>
-            ))}
-          </div>
-        ))}
+    <div className='flex flex-col items-center'>
+      <h1 className="text-4xl font-bold text-center text-gray-900 font-roboto mt-5">
+          Wordle
+      </h1>
+      <div className='flex flex-col items-center justify-center min-h-screen text-center'>
+        <div>
+          {guesses.map((guessObj, index) => (
+            <div key={index} className="guess">
+              {guessObj.guess.split('').map((letter, i) => (
+                <span key={i} className={`letter ${guessObj.result[i]}`}>
+                  {letter}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+        <form onSubmit={handleSubmit}>
+          <input
+            className='border rounded border-black border-solid p-2 mt-5'
+            placeholder='Enter your guess'
+            type="text"
+            maxLength={5}
+            value={currentGuess}
+            onChange={(e) => setCurrentGuess(e.target.value)}
+            disabled={gameOver}
+          />
+          {inputError && <p className='text-red-500' >{ERROR_MESSAGE}</p>}
+          {/* <button type="submit">Submit</button> */}
+        </form>
+        {showPopup && <Popup message="Congratulations! You've won!" onClose={closePopup} />}
+        {errorPopup && <Popup message="You've lost!" onClose={closePopup} />}
+        <style jsx>{`
+          .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+          }
+          .guess {
+            display: flex;
+          }
+          .letter {
+            width: 3.5em;
+            height: 3.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #000;
+            margin: 0.1em;
+            font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+
+          }
+          .green {
+            background-color: #6baa65;
+            color: white;
+            border: 2px solid #d5d6d9;
+
+          }
+          .yellow {
+            background-color: #c9b457;
+            color: black;
+            border: 2px solid #d5d6d9;
+
+          }
+          .gray {
+            background-color: #787c7f;
+            color: white;
+            border: 2px solid #d5d6d9;
+
+          }
+          .white {
+            background-color: white;
+            border: 2px solid #d5d6d9;
+            border-radius: 10%;
+          }
+        `}</style>
       </div>
-      {showPopup && <Popup message="Congratulations! You've won!" onClose={closePopup} />}
-      <style jsx>{`
-        .game-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          text-align: center;
-        }
-        .guess {
-          display: flex;
-        }
-        .letter {
-          width: 2em;
-          height: 2em;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid #000;
-          margin: 0.1em;
-        }
-        .green {
-          background-color: green;
-          color: white;
-        }
-        .yellow {
-          background-color: yellow;
-          color: black;
-        }
-        .gray {
-          background-color: gray;
-          color: white;
-        }
-        .white {
-          background-color: white;
-          border: 1px solid black;
-          border-radius: 10%;
-        }
-      `}</style>
     </div>
+
   );
 }
