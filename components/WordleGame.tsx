@@ -104,18 +104,20 @@ export default function WordleGame() {
             </div>
           ))}
         </div>
-        <form onSubmit={handleSubmit}>
-          <input
-            className='border rounded border-black border-solid p-2 mt-5'
-            placeholder='Enter your guess'
-            type="text"
-            maxLength={5}
-            value={currentGuess}
-            onChange={(e) => setCurrentGuess(e.target.value)}
-            disabled={gameOver}
-          />
+        <form onSubmit={handleSubmit} className='flex items-center justify-center mt-5'>
+        <input
+          className="border rounded border-black border-solid p-2 mr-2"
+          placeholder="Enter your guess"
+          type="text"
+          maxLength={5}
+          value={currentGuess}
+          onChange={(e) => setCurrentGuess(e.target.value)}
+          disabled={gameOver}
+        />
           {inputError && <p className='text-red-500' >{ERROR_MESSAGE}</p>}
-          {/* <button type="submit">Submit</button> */}
+          <button className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            Submit
+          </button>
         </form>
         {showPopup && <Popup message="Congratulations! You've won!" onClose={closePopup} />}
         {errorPopup && <Popup message="You've lost!" onClose={closePopup} />}
